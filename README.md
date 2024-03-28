@@ -30,10 +30,10 @@ This Python script is designed to automate the grading process for Excel files. 
 Before running the script, define the expected values and whitelisted formulas in the script itself:
 
 ```python
-# List of expected values
+# List of expected values (MUST BE IN THE SAME ORDER AS CELLS)
 expected = (46, 47, 197)
 
-# Whitelisted formulas
+# Whitelisted formulas (MUST BE IN THE SAME ORDER AS CELLS)
 whitelist = ("=SUM(D2:D12)", "=SUM(E2:E12)", "=SUM(F2:F12)")
 ```
 ## Output
