@@ -70,7 +70,7 @@ def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, Whitelist
             grades_file.write("Student {0}'s grade is {1}\n".format(student_number, grade))
 
 
-path = r"C:\Users\Emre K\Documents\GitHub\ExcelAutoGrade\Project01.rar"  # Path to the FOLDER that contains excel files
+path = r""  # Path to the FOLDER that contains excel files
 
 expected = (46, 47, 197)  # List of expected values MUST BE IN THE SAME ORDER AS
 # CELLS
