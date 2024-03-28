@@ -1,5 +1,4 @@
 import os
-import warnings
 
 import openpyxl
 import patoolib
@@ -20,24 +19,6 @@ def assertEqualsCell(pathToFolder, SheetName, Cell, expectedValue):
             ws = wb[SheetName]  # Open up Sheet
             if ws[Cell].value == expectedValue:
                 return True
-
-def warn(message, color="red"):
-    colors = {
-        "red": "\033[91m",
-        "yellow": "\033[93m",
-        "green": "\033[92m",
-        "blue": "\033[94m",
-        "purple": "\033[95m",
-        "cyan": "\033[96m"
-    }
-    end_color = "\033[0m"
-
-    if color in colors:
-        print(colors[color] + message + end_color)
-    else:
-        print("Invalid color specified. Defaulting to red.")
-        print(colors["red"] + message + end_color)
-
 
 def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, WhitelistedFormulas):
     valueTestPassed = False
