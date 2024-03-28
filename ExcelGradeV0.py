@@ -1,10 +1,10 @@
-
 import os
 import warnings
 
 import openpyxl
 from os import listdir
 from os.path import join
+
 
 # Made by Emre KAPLAN
 
@@ -37,8 +37,11 @@ def warn(message, color="red"):
         print("Invalid color specified. Defaulting to red.")
         print(colors["red"] + message + end_color)
 
+
 def assertEqualsCells(pathToFolder, SheetName, CellRange, expectedValues, WhitelistedFormulas):
     valueTestPassed = False
+    warning_file = open("Warnings.txt", "w")
+    grades_file = open("Grades.txt", "w")
     """ Asserts that a range of cells is equal to the expected tuple """
     # Loop to iterate through files
     for filename in listdir(pathToFolder):
@@ -67,26 +70,19 @@ def assertEqualsCells(pathToFolder, SheetName, CellRange, expectedValues, Whitel
                             grade += 1
                         else:
                             if type(cell2.value) is not int:
-                                warn(
-                                    "Expected Value of student {0} are correct but used formula is not in the "
-                                    "specified list | Cell: {1} | Formula Used: {2}".format(
+                                warning_file.write(
+                                    "WARNING: Expected Value of student {0} is correct but used formula is not in the "
+                                    "whitelist | Cell: {1} | Formula Used: {2}\n".format(
                                         student_number, cell2.coordinate, cell2.value))
                     else:
                         grade -= 1
 
-            print("Student {0}'s grade is {1}".format(student_number, grade))
+            grades_file.write("Student {0}'s grade is {1}\n".format(student_number, grade))
 
-
-# 1265 grade = 0
-# 2018 grade = 2
-# 135 = 1
-
-path = r"C:\Users\Emre K\Documents\GitHub\ExcelAutoGrade\ExcelFiles"  # Path to the FOLDER that contains excel files
+path = r"C:\Users\Emre K\Desktop\EMREKAPLAN EXCEL GRADE\ExcelFiles"  # Path to the FOLDER that contains excel files
 
 expected = (46, 47, 197)  # List of expected values MUST BE IN THE SAME ORDER AS
 # CELLS
-
-warnings.filterwarnings("ignore", category=UserWarning)
 
 whitelist = ("=SUM(D2:D12)", "=SUM(E2:E12)", "=SUM(F2:F12)")
 
