@@ -2,6 +2,7 @@ import os
 import warnings
 
 import openpyxl
+import patoolib
 from os import listdir
 from os.path import join
 
@@ -9,16 +10,16 @@ from os.path import join
 # Made by Emre KAPLAN
 
 
-# def assertEqualsCell(pathToFolder, SheetName, Cell, expectedValue):
-#     """ Asserts that a cell is equal to the expected """
-#     for filename in listdir(pathToFolder):
-#         full_path = join(pathToFolder, filename)
-#         if os.path.isfile(full_path) and filename.endswith('.xlsx'):
-#             wb = openpyxl.load_workbook(full_path, read_only=True, data_only=True)
-#             counter = 0
-#             ws = wb[SheetName]  # Open up Sheet
-#             if ws[Cell].value == expectedValue:
-#                 return True
+def assertEqualsCell(pathToFolder, SheetName, Cell, expectedValue):
+    """ Asserts that a cell is equal to the expected """
+    for filename in listdir(pathToFolder):
+        full_path = join(pathToFolder, filename)
+        if os.path.isfile(full_path) and filename.endswith(".xlsx"):
+            wb = openpyxl.load_workbook(full_path, read_only=True, data_only=True)
+            counter = 0
+            ws = wb[SheetName]  # Open up Sheet
+            if ws[Cell].value == expectedValue:
+                return True
 
 def warn(message, color="red"):
     colors = {
@@ -38,17 +39,26 @@ def warn(message, color="red"):
         print(colors["red"] + message + end_color)
 
 
-def assertEqualsCells(pathToFolder, SheetName, CellRange, expectedValues, WhitelistedFormulas):
+def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, WhitelistedFormulas):
     valueTestPassed = False
+    # Unpack initial RAR
+    current_directory = os.path.dirname(os.path.abspath(__file__))
+    first_extract = patoolib.extract_archive(pathToZip)
+    warn("found first rar, extracting...", "green")
+    # Iterate through extracted RARs and extract again
+    for filename in listdir(first_extract):
+        if filename.startswith("U"):
+            full_path = join(first_extract, filename)
+            patoolib.extract_archive(full_path)
     warning_file = open("Warnings.txt", "w")
     grades_file = open("Grades.txt", "w")
     """ Asserts that a range of cells is equal to the expected tuple """
     # Loop to iterate through files
-    for filename in listdir(pathToFolder):
-        full_path = join(pathToFolder, filename)
+    for filename in listdir(current_directory):
+        full_path = join(current_directory, filename)
         # Check if the file is an Excel file
-        student_number = filename.split(".")[0]
-        if os.path.isfile(full_path) and filename.endswith('.xlsx'):
+        if os.path.isfile(full_path) and filename.endswith(".xlsx"):
+            student_number = filename.split(".")[0]
             # First VALUE check
             wb_value_only = openpyxl.load_workbook(full_path, read_only=True, data_only=True)
             ws_value_only = wb_value_only[SheetName]
@@ -57,7 +67,6 @@ def assertEqualsCells(pathToFolder, SheetName, CellRange, expectedValues, Whitel
             for value_row in target_cells:
                 for cell in value_row:
                     if cell.value in expectedValues:
-                        # grade += 1
                         valueTestPassed = True
             # Second FORMULA check
             wb_formula = openpyxl.load_workbook(full_path, read_only=True, data_only=False)
@@ -79,7 +88,8 @@ def assertEqualsCells(pathToFolder, SheetName, CellRange, expectedValues, Whitel
 
             grades_file.write("Student {0}'s grade is {1}\n".format(student_number, grade))
 
-path = r"C:\Users\Emre K\Desktop\EMREKAPLAN EXCEL GRADE\ExcelFiles"  # Path to the FOLDER that contains excel files
+
+path = r"C:\Users\Emre K\Documents\GitHub\ExcelAutoGrade\Project01.rar"  # Path to the FOLDER that contains excel files
 
 expected = (46, 47, 197)  # List of expected values MUST BE IN THE SAME ORDER AS
 # CELLS
