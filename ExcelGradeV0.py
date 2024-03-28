@@ -44,12 +44,12 @@ def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, Whitelist
     # Unpack initial RAR
     current_directory = os.path.dirname(os.path.abspath(__file__))
     first_extract = patoolib.extract_archive(pathToZip)
-    warn("found first rar, extracting...", "green")
     # Iterate through extracted RARs and extract again
     for filename in listdir(first_extract):
         if filename.startswith("U"):
             full_path = join(first_extract, filename)
             patoolib.extract_archive(full_path)
+    # Archive extraction done
     warning_file = open("Warnings.txt", "w")
     grades_file = open("Grades.txt", "w")
     """ Asserts that a range of cells is equal to the expected tuple """
