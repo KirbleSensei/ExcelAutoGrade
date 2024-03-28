@@ -20,7 +20,7 @@ This Python script is designed to automate the grading process for Excel files. 
 
     ```
     pip install openpyxl
-    pip install rarfile
+    pip install patoolib
     ```
 
 ## Usage
