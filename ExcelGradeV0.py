@@ -68,6 +68,8 @@ def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, Whitelist
                         grade -= 1
 
             grades_file.write("Student {0}'s grade is {1}\n".format(student_number, grade))
+            warning_file.close()
+            grades_file.close()
 
 
 path = r""  # Path to the FOLDER that contains excel files
