@@ -20,6 +20,13 @@ def assertEqualsCell(pathToFolder, SheetName, Cell, expectedValue):
             if ws[Cell].value == expectedValue:
                 return True
 
+def extract_nested_archives(path):
+    """Extracts nested archives."""
+    first_extract = patoolib.extract_archive(path)
+    for filename in listdir(first_extract):
+        if filename.startswith("U"):
+            full_path = join(first_extract, filename)
+            patoolib.extract_archive(full_path)
 
 def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, WhitelistedFormulas):
     """ Asserts that a range of cells is equal to the expected tuple
@@ -34,10 +41,7 @@ def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, Whitelist
     current_directory = os.path.dirname(os.path.abspath(__file__))
     first_extract = patoolib.extract_archive(pathToZip)
     # Iterate through extracted RARs and extract again
-    for filename in listdir(first_extract):
-        if filename.startswith("U"):
-            full_path = join(first_extract, filename)
-            patoolib.extract_archive(full_path)
+    extract_nested_archives(pathToZip)
     # Archive extraction done
     warning_file = open("Warnings.txt", "w")
     grades_file = open("Grades.txt", "w")
@@ -66,7 +70,7 @@ def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, Whitelist
                         if cell2.value in WhitelistedFormulas:
                             grade += 1
                         else:
-                            if type(cell2.value) is not int:
+                            if type(cell2.value) is not int and cell2.value not in WhitelistedFormulas:
                                 warning_file.write(
                                     "WARNING: Expected Value of student {0} is correct but used formula is not in the "
                                     "whitelist | Cell: {1} | Formula Used: {2}\n".format(
@@ -75,11 +79,9 @@ def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, Whitelist
                         grade -= 1
 
             grades_file.write("Student {0}'s grade is {1}\n".format(student_number, grade))
-            warning_file.close()
-            grades_file.close()
 
 
-path = r""  # Path to the FOLDER that contains excel files
+path = r"C:\Users\2004e\OneDrive\Belgeler\GitHub\ExcelAutoGrade\Project01.rar"  # Path to the FOLDER that contains excel files
 
 expected = (46, 47, 197)  # List of expected values MUST BE IN THE SAME ORDER AS
 # CELLS
