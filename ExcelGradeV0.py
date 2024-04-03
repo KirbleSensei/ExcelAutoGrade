@@ -20,7 +20,15 @@ def assertEqualsCell(pathToFolder, SheetName, Cell, expectedValue):
             if ws[Cell].value == expectedValue:
                 return True
 
+
 def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, WhitelistedFormulas):
+    """ Asserts that a range of cells is equal to the expected tuple
+    :param pathToZip: Raw path to the Initial Zip file
+    :param SheetName: Name of the Sheet to read the data from
+    :param CellRange: Range of Cells to read
+    :param expectedValues: Tuple of expected return values of the formulas
+    :param WhitelistedFormulas: Expected formulas to be used
+    """
     valueTestPassed = False
     # Unpack initial RAR
     current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -33,7 +41,6 @@ def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, Whitelist
     # Archive extraction done
     warning_file = open("Warnings.txt", "w")
     grades_file = open("Grades.txt", "w")
-    """ Asserts that a range of cells is equal to the expected tuple """
     # Loop to iterate through files
     for filename in listdir(current_directory):
         full_path = join(current_directory, filename)
