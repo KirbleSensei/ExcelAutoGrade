@@ -20,6 +20,16 @@ def assertEqualsCell(pathToFolder, SheetName, Cell, expectedValue):
             if ws[Cell].value == expectedValue:
                 return True
 
+def get_cell_range_values(pathToExcel, SheetName, CellRange):
+    cell_values = []
+    wb = openpyxl.load_workbook(pathToExcel, read_only=True, data_only=True)
+    ws = wb[SheetName]
+    target_cells = ws[CellRange]
+    for value_row in target_cells:
+        for cell in value_row:
+            cell_values.append(cell.value)
+    return cell_values
+
 def extract_nested_archives(path):
     """Extracts nested archives."""
     first_extract = patoolib.extract_archive(path)
@@ -49,14 +59,11 @@ def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, Whitelist
         if os.path.isfile(full_path) and filename.endswith(".xlsx"):
             student_number = filename.split(".")[0]
             # First VALUE check
-            wb_value_only = openpyxl.load_workbook(full_path, read_only=True, data_only=True)
-            ws_value_only = wb_value_only[SheetName]
-            target_cells = ws_value_only[CellRange]
+            fetched_values = get_cell_range_values(full_path, SheetName, CellRange)
             grade = 0
-            for value_row in target_cells:
-                for cell in value_row:
-                    if cell.value in expectedValues:
-                        valueTestPassed = True
+            for value in fetched_values:
+                if value in expectedValues:
+                    valueTestPassed = True
             # Second FORMULA check
             wb_formula = openpyxl.load_workbook(full_path, read_only=True, data_only=False)
             ws = wb_formula[SheetName]  # Open up Sheet
