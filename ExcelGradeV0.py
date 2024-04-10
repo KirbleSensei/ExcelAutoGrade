@@ -65,20 +65,20 @@ def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, Whitelist
                 if value in expectedValues:
                     valueTestPassed = True
             # Second FORMULA check
-            wb_formula = openpyxl.load_workbook(full_path, read_only=True, data_only=False)
-            ws = wb_formula[SheetName]  # Open up Sheet
+            wb = openpyxl.load_workbook(full_path, read_only=True, data_only=False)
+            ws = wb[SheetName]  # Open up Sheet
             target_cells = ws[CellRange]  # Cells to be read
-            for row2 in target_cells:
-                for cell2 in row2:
+            for row in target_cells:
+                for cell in row:
                     if valueTestPassed:
-                        if cell2.value in WhitelistedFormulas:
+                        if cell.value in WhitelistedFormulas:
                             grade += 1
                         else:
-                            if type(cell2.value) is not int and cell2.value not in WhitelistedFormulas:
+                            if type(cell.value) is not int and cell.value not in WhitelistedFormulas:
                                 warning_file.write(
                                     "WARNING: Expected Value of student {0} is correct but used formula is not in the "
                                     "whitelist | Cell: {1} | Formula Used: {2}\n".format(
-                                        student_number, cell2.coordinate, cell2.value))
+                                        student_number, cell.coordinate, cell.value))
                     else:
                         grade -= 1
 
