@@ -46,7 +46,7 @@ def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, Whitelist
     :param SheetName: Name of the Sheet to read the data from
     :param CellRange: Range of Cells to read
     :param expectedValues: Tuple of expected return values of the formulas
-    :param WhitelistedFormulas: Expected formulas to be used
+    :param WhitelistedFormulas: Tuple of expected formulas
     """
     valueTestPassed = False
     current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -93,8 +93,7 @@ def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, Whitelist
 
 path = r"C:\Users\Emre K\Documents\GitHub\ExcelAutoGrade\Project01.rar"  # Path to the FOLDER that contains excel files
 
-expected = (46, 47, 197)  # List of expected values MUST BE IN THE SAME ORDER AS
-# CELLS
+expected = (46, 47, 197)  # List of expected values MUST BE IN THE SAME ORDER AS CELLS
 
 whitelist = ("=SUM(D2:D12)", "=SUM(E2:E12)", "=SUM(F2:F12)")
 
