@@ -24,9 +24,8 @@ def extract_nested_archives(path):
     """Extracts nested archives."""
     first_extract = patoolib.extract_archive(path)
     for filename in listdir(first_extract):
-        if filename.startswith("U"):
-            full_path = join(first_extract, filename)
-            patoolib.extract_archive(full_path)
+        full_path = join(first_extract, filename)
+        patoolib.extract_archive(full_path)
 
 def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, WhitelistedFormulas):
     """ Asserts that a range of cells is equal to the expected tuple
@@ -37,15 +36,7 @@ def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, Whitelist
     :param WhitelistedFormulas: Expected formulas to be used
     """
     valueTestPassed = False
-    # Unpack initial RAR
-    # //////
     current_directory = os.path.dirname(os.path.abspath(__file__))
-    first_extract = patoolib.extract_archive(pathToZip)
-    # Iterate through extracted RARs and extract again
-    for filename in listdir(first_extract):
-        if filename.startswith("U"):
-            full_path = join(first_extract, filename)
-            patoolib.extract_archive(full_path)
     # ////////
     extract_nested_archives(pathToZip)
     # Archive extraction done
@@ -86,7 +77,7 @@ def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, Whitelist
 
             grades_file.write("Student {0}'s grade is {1}\n".format(student_number, grade))
 
-path = r"C:\Users\2004e\OneDrive\Belgeler\GitHub\ExcelAutoGrade\Project01.rar"  # Path to the FOLDER that contains excel files
+path = r"C:\Users\Emre K\Documents\GitHub\ExcelAutoGrade\Project01.rar"  # Path to the FOLDER that contains excel files
 
 expected = (46, 47, 197)  # List of expected values MUST BE IN THE SAME ORDER AS
 # CELLS
