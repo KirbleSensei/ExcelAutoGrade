@@ -1,114 +1,116 @@
 import os
-
 import openpyxl
 import patoolib
 from os import listdir
 from os.path import join
 
 
-# Made by Emre KAPLAN
-
-
-def assertEqualsCell(pathToFolder, SheetName, Cell, expectedValue):
-    """ Asserts that a cell is equal to the expected """
-    for filename in listdir(pathToFolder):
-        full_path = join(pathToFolder, filename)
+def assert_equals_cell(path_to_folder, sheet_name, cell, expected_value):
+    """Asserts that a cell is equal to the expected value"""
+    for filename in listdir(path_to_folder):
+        full_path = join(path_to_folder, filename)
         if os.path.isfile(full_path) and filename.endswith(".xlsx"):
+            # Load Excel file with read-only mode and data-only option
             wb = openpyxl.load_workbook(full_path, read_only=True, data_only=True)
-            counter = 0
-            ws = wb[SheetName]  # Open up Sheet
-            if ws[Cell].value == expectedValue:
+            ws = wb[sheet_name]  # Open up Sheet
+            if ws[cell].value == expected_value:
                 return True
 
 
-def get_cells_in_range(pathToExcel, SheetName, CellRange):
-    """ Returns a list of cell objects with values from the specified CellRange
-    :returns cell_container: list of cell objects
-    """
+def get_cells_in_range(path_to_excel, sheet_name, cell_range):
+    """Returns a list of cell objects with values from the specified cell range"""
     cell_container = []
-    wb = openpyxl.load_workbook(pathToExcel, read_only=True, data_only=True)  # Load Excel file with values
-    ws = wb[SheetName]
-    target_cells = ws[CellRange]
+    wb = openpyxl.load_workbook(path_to_excel, read_only=True, data_only=True)
+    ws = wb[sheet_name]
+    target_cells = ws[cell_range]
     for value_row in target_cells:
         for cell in value_row:
             cell_container.append(cell)
     return cell_container
 
 
-def get_formulas_in_range(pathToExcel, SheetName, CellRange):
-    """ Returns a list of cell objects with formulas from the specified CellRange
-    :returns cell_container: list of cell objects
-    """
+def get_formulas_in_range(path_to_excel, sheet_name, cell_range):
+    """Returns a list of cell objects with formulas from the specified cell range"""
     cell_container = []
-    wb = openpyxl.load_workbook(pathToExcel, read_only=True, data_only=False)  # Load Excel file with formulas
-    ws = wb[SheetName]
-    target_cells = ws[CellRange]
+    wb = openpyxl.load_workbook(path_to_excel, read_only=True, data_only=False)
+    ws = wb[sheet_name]
+    target_cells = ws[cell_range]
     for value_row in target_cells:
         for cell in value_row:
             cell_container.append(cell)
     return cell_container
 
 
-def extract_nested_archives(path):
+def extract_nested_archives(path_to_zip):
     """Extracts nested archives."""
-    first_extract = patoolib.extract_archive(path)
+    first_extract = patoolib.extract_archive(path_to_zip)
     for filename in listdir(first_extract):
         full_path = join(first_extract, filename)
         patoolib.extract_archive(full_path)
 
 
-def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, WhitelistedFormulas):
-    """ Asserts that a range of cells is equal to the expected tuple
-    :param pathToZip: Raw path to the Initial Zip file
-    :param SheetName: Name of the Sheet to read the data from
-    :param CellRange: Range of Cells to read
-    :param expectedValues: Tuple of expected return values of the formulas
-    :param WhitelistedFormulas: Tuple of expected formulas
+def assert_equals_cells(path_to_zip, sheet_name, cell_range, expected_values, whitelisted_formulas):
     """
-    valueTestPassed = False
+    Asserts that a range of cells is equal to the expected tuple.
+
+    :param path_to_zip: Raw path to the Initial Zip file
+    :param sheet_name: Name of the Sheet to read the data from
+    :param cell_range: Range of Cells to read
+    :param expected_values: Tuple of expected return values of the formulas
+    :param whitelisted_formulas: Tuple of expected formulas
+    """
+    # Flag to track if the value test passed
+    value_test_passed = False
+    # Get the current directory
     current_directory = os.path.dirname(os.path.abspath(__file__))
-    extract_nested_archives(pathToZip)
+    # Extract nested archives from the given path
+    extract_nested_archives(path_to_zip)
 
-    warning_file = open("Warnings.txt", "w")  # Initialize Grading and Warning files
-    grades_file = open("Grades.txt", "w")
+    # Open files for writing warnings and grades
+    with open("Warnings.txt", "w") as warning_file, open("Grades.txt", "w") as grades_file:
+        # Loop through files in the current directory
+        for filename in listdir(current_directory):
+            full_path = join(current_directory, filename)
+            # Check if the file is an Excel file
+            if os.path.isfile(full_path) and filename.endswith(".xlsx"):
+                student_number = filename.split(".")[0]
 
-    for filename in listdir(current_directory):  # Loop through files
-        full_path = join(current_directory, filename)
+                # Get cell values within the specified range
+                fetched_value_cells = get_cells_in_range(full_path, sheet_name, cell_range)
+                grade = 0
+                # Check if fetched cell values are in the expected values
+                for cell in fetched_value_cells:
+                    if cell.value in expected_values:
+                        value_test_passed = True
 
-        # Check if the file is an Excel file
-        if os.path.isfile(full_path) and filename.endswith(".xlsx"):
-            student_number = filename.split(".")[0]
-
-            # First VALUE check
-            fetched_value_cells = get_cells_in_range(full_path, SheetName, CellRange)
-            grade = 0  # Initialize grade
-            for cell in fetched_value_cells:
-                if cell.value in expectedValues:
-                    valueTestPassed = True
-
-            # Second FORMULA check
-            fetched_formula_cells = get_formulas_in_range(full_path, SheetName, CellRange)
-
-            for cell in fetched_formula_cells:
-                if valueTestPassed:
-                    if cell.value in WhitelistedFormulas:
-                        grade += 1
+                # Get cell formulas within the specified range
+                fetched_formula_cells = get_formulas_in_range(full_path, sheet_name, cell_range)
+                # Loop through fetched formula cells
+                for cell in fetched_formula_cells:
+                    # If the value test passed
+                    if value_test_passed:
+                        # Check if the formula is in the whitelist
+                        if cell.value in whitelisted_formulas:
+                            grade += 1
+                        else:
+                            # Write a warning if the formula is not in the whitelist
+                            if type(cell.value) is not int and cell.value not in whitelisted_formulas:
+                                warning_file.write(
+                                    "WARNING: Expected Value of student {0} is correct but used formula is not in the "
+                                    "whitelist | Cell: {1} | Formula Used: {2}\n".format(
+                                        student_number, cell.coordinate, cell.value))
                     else:
-                        if type(cell.value) is not int and cell.value not in WhitelistedFormulas:
-                            warning_file.write(
-                                "WARNING: Expected Value of student {0} is correct but used formula is not in the "
-                                "whitelist | Cell: {1} | Formula Used: {2}\n".format(
-                                    student_number, cell.coordinate, cell.value))
-                else:
-                    grade -= 1
+                        # Decrease grade if the value test didn't pass
+                        grade -= 1
 
-            grades_file.write("Student {0}'s grade is {1}\n".format(student_number, grade))
+                # Write the student's grade to the grades file
+                grades_file.write("Student {0}'s grade is {1}\n".format(student_number, grade))
 
 
-path = r"C:\Users\Emre K\Documents\GitHub\ExcelAutoGrade\Project01.rar"  # Path to the FOLDER that contains excel files
+# Example usage
+path = r"C:\Users\Emre K\Documents\GitHub\ExcelAutoGrade\Project01.rar"
 
-expected = (46, 47, 197)  # List of expected values MUST BE IN THE SAME ORDER AS CELLS
-
+expected = (46, 47, 197)
 whitelist = ("=SUM(D2:D12)", "=SUM(E2:E12)", "=SUM(F2:F12)")
 
-assertEqualsCells(path, "Sheet1", "D13:F13", expected, whitelist)
+assert_equals_cells(path, "Sheet1", "D13:F13", expected, whitelist)
