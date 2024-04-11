@@ -21,15 +21,15 @@ def assertEqualsCell(pathToFolder, SheetName, Cell, expectedValue):
                 return True
 
 
-def get_cell_range_values(pathToExcel, SheetName, CellRange):
-    cell_values = []
+def get_cells_in_range(pathToExcel, SheetName, CellRange):
+    cell_container = []
     wb = openpyxl.load_workbook(pathToExcel, read_only=True, data_only=True)
     ws = wb[SheetName]
     target_cells = ws[CellRange]
     for value_row in target_cells:
         for cell in value_row:
-            cell_values.append(cell.value)
-    return cell_values
+            cell_container.append(cell)
+    return cell_container
 
 
 def extract_nested_archives(path):
@@ -63,10 +63,10 @@ def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, Whitelist
             student_number = filename.split(".")[0]
 
             # First VALUE check
-            fetched_values = get_cell_range_values(full_path, SheetName, CellRange)
+            fetched_cells = get_cells_in_range(full_path, SheetName, CellRange)
             grade = 0       # Initialize grade
-            for value in fetched_values:
-                if value in expectedValues:
+            for cell in fetched_cells:
+                if cell.value in expectedValues:
                     valueTestPassed = True
 
             # Second FORMULA check
