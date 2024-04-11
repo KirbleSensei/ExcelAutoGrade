@@ -22,8 +22,25 @@ def assertEqualsCell(pathToFolder, SheetName, Cell, expectedValue):
 
 
 def get_cells_in_range(pathToExcel, SheetName, CellRange):
+    """ Returns a list of cell objects with values from the specified CellRange
+    :returns cell_container: list of cell objects
+    """
     cell_container = []
-    wb = openpyxl.load_workbook(pathToExcel, read_only=True, data_only=True)
+    wb = openpyxl.load_workbook(pathToExcel, read_only=True, data_only=True)  # Load Excel file with values
+    ws = wb[SheetName]
+    target_cells = ws[CellRange]
+    for value_row in target_cells:
+        for cell in value_row:
+            cell_container.append(cell)
+    return cell_container
+
+
+def get_formulas_in_range(pathToExcel, SheetName, CellRange):
+    """ Returns a list of cell objects with formulas from the specified CellRange
+    :returns cell_container: list of cell objects
+    """
+    cell_container = []
+    wb = openpyxl.load_workbook(pathToExcel, read_only=True, data_only=False)  # Load Excel file with formulas
     ws = wb[SheetName]
     target_cells = ws[CellRange]
     for value_row in target_cells:
@@ -63,30 +80,27 @@ def assertEqualsCells(pathToZip, SheetName, CellRange, expectedValues, Whitelist
             student_number = filename.split(".")[0]
 
             # First VALUE check
-            fetched_cells = get_cells_in_range(full_path, SheetName, CellRange)
-            grade = 0       # Initialize grade
-            for cell in fetched_cells:
+            fetched_value_cells = get_cells_in_range(full_path, SheetName, CellRange)
+            grade = 0  # Initialize grade
+            for cell in fetched_value_cells:
                 if cell.value in expectedValues:
                     valueTestPassed = True
 
             # Second FORMULA check
-            wb = openpyxl.load_workbook(full_path, read_only=True, data_only=False)
-            ws = wb[SheetName]  # Open up Sheet
-            target_cells = ws[CellRange]  # Cells to be read
+            fetched_formula_cells = get_formulas_in_range(full_path, SheetName, CellRange)
 
-            for row in target_cells:
-                for cell in row:
-                    if valueTestPassed:
-                        if cell.value in WhitelistedFormulas:
-                            grade += 1
-                        else:
-                            if type(cell.value) is not int and cell.value not in WhitelistedFormulas:
-                                warning_file.write(
-                                    "WARNING: Expected Value of student {0} is correct but used formula is not in the "
-                                    "whitelist | Cell: {1} | Formula Used: {2}\n".format(
-                                        student_number, cell.coordinate, cell.value))
+            for cell in fetched_formula_cells:
+                if valueTestPassed:
+                    if cell.value in WhitelistedFormulas:
+                        grade += 1
                     else:
-                        grade -= 1
+                        if type(cell.value) is not int and cell.value not in WhitelistedFormulas:
+                            warning_file.write(
+                                "WARNING: Expected Value of student {0} is correct but used formula is not in the "
+                                "whitelist | Cell: {1} | Formula Used: {2}\n".format(
+                                    student_number, cell.coordinate, cell.value))
+                else:
+                    grade -= 1
 
             grades_file.write("Student {0}'s grade is {1}\n".format(student_number, grade))
 
