@@ -42,10 +42,6 @@ def get_formulas_in_range(path_to_excel, sheet_name, cell_range):
     return cell_container
 
 
-def extract_nested_archives(path_to_zip):
-    """Extracts nested archives."""
-
-
 def assert_equals_cells(path_to_zip, sheet_name, cell_range, expected_values, whitelisted_formulas):
     """
     Asserts that a range of cells is equal to the expected tuple.
