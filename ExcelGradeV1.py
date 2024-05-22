@@ -43,10 +43,10 @@ def get_formulas_in_range(path_to_excel, sheet_name, cell_range):
 
 def extract_nested_archives(path_to_zip):
     """Extracts nested archives."""
-    first_extract = patoolib.extract_archive(path_to_zip)
+    first_extract = patoolib.extract_archive(path_to_zip, verbosity=-1)
     for filename in listdir(first_extract):
         full_path = join(first_extract, filename)
-        patoolib.extract_archive(full_path)
+        patoolib.extract_archive(full_path, verbosity=-1)
 
 
 def assert_equals_cells(path_to_zip, sheet_name, cell_range, expected_values, whitelisted_formulas):
