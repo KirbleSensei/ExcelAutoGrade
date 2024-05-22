@@ -75,7 +75,7 @@ def assert_equals_cells(path_to_zip, sheet_name, cell_range, expected_values, wh
             # Check if the file is an Excel file
             if os.path.isfile(full_path) and filename.endswith(".xlsx"):
                 student_number = filename.split(".")[0]
-
+                student_file = filename
                 # Get cell values within the specified range
                 fetched_value_cells = get_cells_in_range(full_path, sheet_name, cell_range)
                 grade = 0
@@ -108,14 +108,13 @@ def assert_equals_cells(path_to_zip, sheet_name, cell_range, expected_values, wh
                 with open("Grade.txt", "w") as grades_file:
                     grades_file.write("Student {0}'s grade is {1}\n".format(student_number, grade))
                     grades_file.close()
-                    patoolib.create_archive("{0} Graded.rar".format(student_number), (grades_file.name,))
+                    patoolib.create_archive("{0} Graded.rar".format(student_number), (grades_file.name, student_file))
                     os.remove(grades_file.name)
     for filename in listdir(current_directory):
         full_path = join(current_directory, filename)
         # Check if the file is an Excel file
         if os.path.isfile(full_path) and filename.find("Graded") != -1:
-            filename_without_extension = filename.split(".")[0]
-            graded_files.append(filename_without_extension)
+            graded_files.append(filename)
     graded_files_tuple = tuple(graded_files)
     patoolib.create_archive("Graded.rar", graded_files_tuple)
 
