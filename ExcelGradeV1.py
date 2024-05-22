@@ -59,6 +59,7 @@ def assert_equals_cells(path_to_zip, sheet_name, cell_range, expected_values, wh
     :param expected_values: Tuple of expected return values of the formulas
     :param whitelisted_formulas: Tuple of expected formulas
     """
+    graded_files = []
     # Flag to track if the value test passed
     value_test_passed = False
     # Get the current directory
@@ -67,7 +68,7 @@ def assert_equals_cells(path_to_zip, sheet_name, cell_range, expected_values, wh
     extract_nested_archives(path_to_zip)
 
     # Open files for writing warnings and grades
-    with open("Warnings.txt", "w") as warning_file, open("Grades.txt", "w") as grades_file:
+    with open("Warnings.txt", "w") as warning_file:
         # Loop through files in the current directory
         for filename in listdir(current_directory):
             full_path = join(current_directory, filename)
@@ -104,7 +105,19 @@ def assert_equals_cells(path_to_zip, sheet_name, cell_range, expected_values, wh
                         grade -= 1
 
                 # Write the student's grade to the grades file
-                grades_file.write("Student {0}'s grade is {1}\n".format(student_number, grade))
+                with open("Grade.txt", "w") as grades_file:
+                    grades_file.write("Student {0}'s grade is {1}\n".format(student_number, grade))
+                    grades_file.close()
+                    patoolib.create_archive("{0} Graded.rar".format(student_number), (grades_file.name,))
+                    os.remove(grades_file.name)
+    for filename in listdir(current_directory):
+        full_path = join(current_directory, filename)
+        # Check if the file is an Excel file
+        if os.path.isfile(full_path) and filename.find("Graded") != -1:
+            filename_without_extension = filename.split(".")[0]
+            graded_files.append(filename_without_extension)
+    graded_files_tuple = tuple(graded_files)
+    patoolib.create_archive("Graded.rar", graded_files_tuple)
 
 
 # Example usage
