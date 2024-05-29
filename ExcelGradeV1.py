@@ -55,13 +55,15 @@ def assert_equals_cells(path_to_zip, sheet_name, cell_range, expected_values, wh
     graded_files = []
     # Flag to track if the value test passed
     value_test_passed = False
-    # Get the current directory
+    # Save the current directory
     original_directory = os.getcwd()
 
-    # Extract nested archives from the given path
+    # Use the temp directory and assign it to current_directory
     with tempfile.TemporaryDirectory() as tmpdirname:
         current_directory = tmpdirname
+        # os.chdir changes the root directory of the code to the current_directory which is temp
         os.chdir(current_directory)
+        # Extraction of the Project01.rar, first_extract is the path of the extracted file
         first_extract = patoolib.extract_archive(path_to_zip, verbosity=-1)
         for filename in listdir(first_extract):
             full_path = join(first_extract, filename)
