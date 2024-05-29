@@ -69,13 +69,14 @@ def assert_equals_cells(path_to_zip, sheet_name, cell_range, expected_values, wh
             full_path = join(first_extract, filename)
             patoolib.extract_archive(full_path, verbosity=-1)
 
-        # Open files for writing warnings and grades
+        # Open warning file
         with open("Warnings.txt", "w") as warning_file:
             # Loop through files in the current directory
             for filename in listdir(current_directory):
                 full_path = join(current_directory, filename)
                 # Check if the file is an Excel file
                 if os.path.isfile(full_path) and filename.endswith(".xlsx"):
+                    # Get student info for logging
                     student_number = filename.split(".")[0]
                     student_file = filename
                     # Get cell values within the specified range
@@ -110,14 +111,20 @@ def assert_equals_cells(path_to_zip, sheet_name, cell_range, expected_values, wh
                     with open("Grade.txt", "w") as grades_file:
                         grades_file.write("Student {0}'s grade is {1}\n".format(student_number, grade))
                         grades_file.close()
+                        # Compress the students Excel file and Grade file
                         patoolib.create_archive("{0} Graded.rar".format(student_number), (grades_file.name, student_file))
+                        # Delete grade file
                         os.remove(grades_file.name)
+        # Loop through the compressed student graded files
         for filename in listdir(current_directory):
             full_path = join(current_directory, filename)
-            # Check if the file is an Excel file
+            # Check if filename contains "Graded"
             if os.path.isfile(full_path) and filename.find("Graded") != -1:
+                # Appends graded_files to a list. This is to convert it to a tuple later on.
                 graded_files.append(filename)
+        # Convert graded_files list into a tuple
         graded_files_tuple = tuple(graded_files)
+        # Create a final Graded zip that contains all individual Student Graded zips
         patoolib.create_archive(os.path.join(original_directory, "Graded.rar"), graded_files_tuple + ("Warnings.txt",))
 
 
